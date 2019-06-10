@@ -1,0 +1,18 @@
+---
+# RECOMMENDED CHANGE
+env: "dev"
+ansible_host: "111.111.111.111"
+main_domain: "example.com"
+branch: "master"
+
+# Mysql
+database_name: "laravel"
+database_user: "user"
+database_password: "password"
+
+# Nginx
+nginx_admin_password: "1234" #[optional]
+
+# Laravel envs
+google_tag_manager_id: "" #[optional]
+bugsnag_api_key: ""

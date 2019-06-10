@@ -1,0 +1,18 @@
+---
+# RECOMMENDED CHANGE
+env: "prod"
+ansible_host: ""
+main_domain: ""
+branch: ""
+
+# Mysql
+database_name: ""
+database_user: ""
+database_password: ""
+
+# Nginx
+nginx_admin_password: ""
+
+# Laravel envs
+google_tag_manager_id: ""
+bugsnag_api_key: ""

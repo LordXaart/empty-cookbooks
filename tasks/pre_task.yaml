@@ -1,0 +1,8 @@
+---
+
+- name: "pre_task: update apt cache"
+  apt: 
+    update_cache: yes
+
+- name: "pre_task: install python 2.x"
+  raw: sudo apt-get -y install python-simplejson

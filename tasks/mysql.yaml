@@ -1,0 +1,57 @@
+---
+
+- block:
+  - name: "mysql: install mysql"
+    apt:
+      pkg: ['mysql-server', 'mysql-client', 'python-mysqldb']
+
+  - name: "mysql: start service"
+    service:
+      name: mysql
+      state: started
+      enabled: yes
+
+  - name: "mysql: update root password"
+    mysql_user:
+      name: root
+      host: "{{ item }}"
+      check_implicit_admin: yes
+      password: ''
+      login_user: root
+      login_password: ''
+      priv: '*.*:ALL,GRANT'
+    loop:
+      - 127.0.0.1
+      - ::1
+      - localhost
+
+  - name: "mysql: use file settings"
+    copy:
+      src: 'files/mysql/mysqld.cnf'
+      dest: '/etc/mysql/conf.d/mysqld.cnf'
+      mode: 0644
+
+  - name: "mysql: create db"
+    mysql_db: name={{ database_name }} state=present
+
+  - name: "mysql: create user"
+    mysql_user:
+      name: '{{ database_user }}'
+      host: "{{ item }}"
+      password: '{{ database_password }}'
+      login_user: root
+      login_password: ''
+      priv: '{{ database_name }}.*:ALL'
+    loop:
+      - 127.0.0.1
+      - ::1
+      - localhost
+
+  when: services.mysql == true
+
+- name: "mysql: stop service"
+  service:
+    name: mysql
+    state: stopped
+  ignore_errors: yes
+  when: services.mysql == false

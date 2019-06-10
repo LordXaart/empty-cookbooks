@@ -1,0 +1,48 @@
+---
+
+- name: "php: Install ppa repository"
+  apt_repository:
+    repo: "ppa:ondrej/php"
+
+- name: "php: update apt cache"
+  apt: 
+    update_cache: yes
+
+- name: "php: install php"
+  apt:
+    pkg: ['php{{ php_ver }}-fpm', 'php{{ php_ver }}-cli']
+
+- name: "php: install php ext"
+  apt:
+    pkg: "{{ php_exts }}"
+
+- name: "php: dirs create"
+  file: 
+    path: '{{ item }}' 
+    state: directory
+  loop:
+    - "/etc/php/{{ php_ver }}/"
+    - "/etc/php/{{ php_ver }}/fpm"
+    - "/etc/php/{{ php_ver }}/fpm/pool.d"
+    - "/etc/php/{{ php_ver }}/mods-enabled"
+    - "/var/log/php-fpm"
+      
+- name: "php: create settings_override.ini"
+  template:
+    src: "templates/php/fpm/conf.d/settings_override.ini.j2"
+    dest: "/etc/php/{{ php_ver }}/fpm/conf.d/settings_override.ini"
+
+- name: "php: rewrite php-fpm.conf"
+  template:
+    src: "templates/php/fpm/php-fpm.conf.j2"
+    dest: "/etc/php/{{ php_ver }}/fpm/php-fpm.conf"
+
+# Version 1.8.4
+- name: "php: install composer"
+  shell: wget https://getcomposer.org/download/1.8.4/composer.phar -O /usr/bin/composer && chmod +x /usr/bin/composer creates=/usr/bin/composer
+
+- name: "php: start"
+  service:
+    name: "php{{ php_ver }}-fpm"
+    state: started
+    enabled: yes

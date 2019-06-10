@@ -1,0 +1,35 @@
+---
+
+- name: "ssh: copy public, private key"
+  copy: 
+    src: "{{ item }}" 
+    dest: "/root/.ssh" 
+    mode: 0600
+  loop:
+    - ".ssh/{{ ssh_public_key }}"
+    - ".ssh/{{ ssh_private_key }}"
+
+- name: "ssh: update ssh config"
+  template: 
+    src: "templates/ssh/config.j2" 
+    dest: "/root/.ssh/config" 
+    mode: 0600 
+    force: yes 
+    backup: yes
+
+- name: "ssh: make sure the known hosts file exists"
+  file: 
+    path: "/root/.ssh/known_hosts" 
+    state: touch
+
+- name: "ssh: check host name availability"
+  shell: "ssh-keygen -f /root/.ssh/known_hosts -F {{ item }}"
+  with_items: "{{ ssh_known_hosts }}"
+  register: ssh_known_host_results
+  ignore_errors: yes
+
+- name: "ssh: scan the public key"
+  shell: "ssh-keyscan -H -T 10 {{ item.item }} >> /root/.ssh/known_hosts"
+  with_items: "{{ ssh_known_host_results.results }}"
+  when: item.stdout == ""
+  

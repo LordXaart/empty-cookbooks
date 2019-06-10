@@ -1,0 +1,102 @@
+---
+# Base settings
+
+# ansible playbook config
+ansible_become: true
+ansible_ssh_user: "root"
+ansible_ssh_private_key_file: ".ssh/{{ ssh_private_key }}"
+
+#deployer
+keep_releases: 3
+repository: "git@github.com:Username/repository.git"
+ssh_type: "native"
+ssh_multiplexing: true
+writable_mode: "chmod"
+shared_files:
+  - ".env"
+  - "laravel-echo-server.json"
+
+# swap
+swapfile_size: "2G"
+swapfile_location: "/swapfile"
+swapfile_swappiness: 10
+swapfile_vfs_cache_pressure: 50
+
+# ssl
+ssl_enabled: true
+ssl_certificate_key: "{{ env }}.key"
+ssl_certificate_crt: "{{ env }}.crt"
+
+# ssh
+ssh_public_key: "{{ env }}.pub"
+ssh_private_key: "{{ env }}"
+ssh_known_hosts:
+  - "bitbucket.org"
+  - "github.com"
+
+services:
+  # true|false setup swap
+  swap: true
+  # true|false setup mysql with defined credentials
+  mysql: true
+  # true|false setup local redis server
+  redis: false
+  # true|false run cron job
+  cron: false
+  # true|false run supervisor
+  supervisor: false
+  # true|false run echo server, setup nginx config
+  websockets: false
+  # true|false run queue laravel, setup supervisor
+  queue: false
+  # string|false path to admin area or false
+  admin_area: false
+
+utilites:
+  - 'git-core'
+  - 'nano'
+  - 'curl'
+  - 'zip'
+  - 'unzip'
+  - 'htop'
+
+php_ver: 7.3
+php_exts:
+  - "php{{ php_ver }}-zip"
+  - "php{{ php_ver }}-curl"
+  - "php{{ php_ver }}-cli"
+  - 'php{{ php_ver }}-mysql'
+  - 'php{{ php_ver }}-gd'
+  - 'php{{ php_ver }}-imagick'
+  - 'php{{ php_ver }}-mbstring'
+  - 'php{{ php_ver }}-xml'
+  - 'php{{ php_ver }}-bcmath'
+
+# server settings
+client_max_body_size: "100M"
+post_max_size: "100M"
+upload_max_filesize: "100M"
+
+# base laravel settings
+app_env: "{{ env }}"
+app_key: ""
+app_debug: "false"
+app_url: "https://{{ main_domain }}"
+app_secure: "{{ ssl_enabled }}"
+
+debugbar_enabled: "false"
+app_log_level: "debug"
+log_channel: "stack"
+
+broadcast_driver: "log"
+cache_driver: "file"
+queue_connection: "sync"
+session_driver: "file"
+session_lifetime: "120"
+
+database_connection: "mysql"
+database_host: "127.0.0.1"
+
+redis_host: "127.0.0.1"
+redis_password: null
+redis_port: "6379"

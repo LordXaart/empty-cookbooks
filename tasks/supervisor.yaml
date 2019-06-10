@@ -1,0 +1,50 @@
+---
+
+- block:
+  - name: "supervisor: install"
+    apt:
+      pkg: supervisor
+      state: present
+
+  - name: "supervisor: create dirs"
+    file:
+      path: '/var/log/supervisor'
+      state: directory
+      owner: www-data
+      group: www-data
+
+  - name: "supervisor: start service"
+    service:
+      name: supervisor
+      state: started
+      enabled: yes
+
+  - name: "supervisor: config"
+    template:
+      src: 'templates/supervisor/worker.j2'
+      dest: '/etc/supervisor/conf.d/worker.conf'
+      owner: www-data
+      group: www-data
+
+  - name: "supervisor: restart service"
+    service:
+      name: supervisor
+      state: restarted
+
+  - name: "supervisor: reread"
+    shell: supervisorctl reread
+
+  - name: "supervisor: update"
+    shell: supervisorctl update
+
+  - name: "supervisor: start worker"
+    shell: supervisorctl start all
+
+  when: services.supervisor == true
+
+- name: "supervisor: stop service"
+  service:
+    name: supervisor
+    state: stopped
+  ignore_errors: yes
+  when: services.supervisor == false

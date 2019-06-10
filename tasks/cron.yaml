@@ -1,0 +1,29 @@
+---
+  
+- block:
+  - name: "cron: install cron"
+    apt: 
+      pkg: cron
+
+  - name: "cron: create dirs"
+    file: 
+      path: '{{ item }}' 
+      state: directory
+    loop:
+      - /var/log/cron
+      - /var/log/cron/{{ main_domain }}
+
+  - name: "cron: add laravel cron task"
+    cron:
+      name: "laravel schedule cron"
+      user: "root"
+      job: "cd /var/www/{{ main_domain }}/current && php artisan schedule:run >> /dev/null 2>&1"
+
+  when: services.cron == true
+
+- name: "cron: stop service"
+  service:
+    name: cron
+    state: stopped
+  ignore_errors: yes
+  when: services.cron == false

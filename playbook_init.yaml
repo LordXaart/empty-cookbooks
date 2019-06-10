@@ -1,0 +1,20 @@
+---
+- hosts: all
+  gather_facts: no
+  become: yes
+
+  pre_tasks:
+    - include: tasks/pre_task.yaml
+
+  tasks:
+    - include: tasks/swap.yaml
+    - include: tasks/ssh.yaml
+    - include: tasks/utilites.yaml
+    - include: tasks/nginx.yaml
+    - include: tasks/php.yaml
+    - include: tasks/mysql.yaml
+    - include: tasks/redis.yaml
+    - include: tasks/supervisor.yaml
+    - include: tasks/cron.yaml
+    - include: tasks/node.yaml
+

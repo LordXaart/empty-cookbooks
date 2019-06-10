@@ -1,0 +1,5 @@
+---
+
+- name: "utilites: install utilites"
+  apt:
+    pkg: "{{ utilites }}"

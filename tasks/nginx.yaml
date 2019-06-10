@@ -1,0 +1,79 @@
+---
+
+- name: "Stop apache"
+  raw: sudo systemctl stop apache2.service
+  ignore_errors: yes
+
+- name: "nginx: install nginx"
+  apt: 
+    pkg: nginx 
+
+- name: "nginx: dirs create"
+  file: 
+    path: '{{ item }}' 
+    state: directory
+  loop:
+    - /etc/nginx/
+    - /etc/nginx/conf.d
+    - /etc/nginx/sites-available
+    - /etc/nginx/sites-enabled
+    - /etc/nginx/ssl
+    - /etc/nginx/snippets
+
+- name: "nginx: copy config"
+  copy: 
+    src: 'files/nginx/nginx.conf' 
+    dest: "/etc/nginx/"
+
+- name: "nginx: copy default vhost"
+  copy: 
+    src: 'files/nginx/sites-enabled/default' 
+    dest: "/etc/nginx/sites-enabled/"
+
+- name: "nginx: copy gzip config"
+  copy:
+    src: 'files/nginx/conf.d/gzip.conf'
+    dest: '/etc/nginx/conf.d/'
+
+- name: "nginx: replace index.html"
+  copy: 
+    src: 'files/index.html' 
+    dest: "/var/www/html"
+
+- name: "nginx: install apache2-utils"
+  apt:
+    pkg: apache2-utils
+
+- name: "nginx: make sure we can use htpasswd module"
+  apt:
+    pkg: python-passlib
+
+- htpasswd:
+    path: /etc/nginx/.htpasswd
+    name: admin
+    password: "{{nginx_admin_password}}"
+    owner: root
+    group: www-data
+    mode: 0640
+  when: services.admin_area != false
+
+- name: "nginx: copy ssl certificate key"
+  copy: 
+    src: 'files/nginx/ssl/{{ item }}' 
+    dest: '/etc/nginx/ssl/{{ item }}'
+  loop:
+    - "{{ ssl_certificate_key }}"
+    - "{{ ssl_certificate_crt }}"
+  when: ssl_enabled == true
+
+- name: "nginx: copy config ssl"
+  copy: 
+    src: 'files/nginx/ssl-params.conf' 
+    dest: "/etc/nginx/snippets/ssl-params.conf"
+  when: ssl_enabled == true
+
+- name: "nginx: restart"
+  service:
+    name: nginx 
+    state: restarted
+    

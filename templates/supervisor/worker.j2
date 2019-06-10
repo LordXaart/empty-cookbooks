@@ -1,0 +1,24 @@
+{% if services.queue %}
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/{{ main_domain }}/current/artisan queue:work --sleep=3 --tries=3 --daemon
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/worker.log
+{% endif %}
+
+{% if services.websockets %}
+[program:laravel-echo]
+directory=/var/www/{{ main_domain }}/current
+process_name=%(program_name)s_%(process_num)02d
+command=laravel-echo-server start
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/echo.log
+{% endif %}

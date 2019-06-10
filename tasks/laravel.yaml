@@ -1,0 +1,37 @@
+---
+
+- name: 'laravel: create dirs'
+  file: 
+    path: '{{ item }}' 
+    state: directory 
+    owner: www-data 
+    group: www-data
+  loop:
+    - /var/www
+    - /var/www/{{ main_domain }}
+    - /var/www/{{ main_domain }}/shared
+    - /var/www/{{ main_domain }}/shared/storage
+
+- name: 'laravel: create .env'
+  template:
+    src: 'templates/laravel/env.j2'
+    dest: '/var/www/{{ main_domain }}/shared/.env'
+
+- name: 'laravel: setup site vhost'
+  template:
+    src: 'templates/nginx/default.j2'
+    dest: '/etc/nginx/sites-enabled/{{ main_domain }}'
+
+- name: 'laravel: echo server config'
+  template:
+    src: 'templates/laravel/laravel-echo-server.j2'
+    dest: '/var/www/{{ main_domain }}/shared/laravel-echo-server.json'
+  when: services.websockets == true
+
+- name: 'restart services'
+  service: 
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - "nginx"
+    - "supervisor"

@@ -1,0 +1,11 @@
+Host bitbucket.org
+    HostName bitbucket.org
+    StrictHostKeyChecking no
+    User git
+    IdentityFile ~/.ssh/{{ ssh_private_key }}
+
+Host github.com
+    HostName github.com
+    StrictHostKeyChecking no
+    User git
+    IdentityFile ~/.ssh/{{ ssh_private_key }}

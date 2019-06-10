@@ -1,0 +1,21 @@
+---
+
+- block: 
+  - name: "redis: install redis"
+    apt:
+      pkg: redis-server
+
+  - name: "redis: start service"
+    service:
+      name: redis-server
+      state: started
+      enabled: yes
+      
+  when: services.redis == true
+
+- name: "redis: stop service"
+  service:
+    name: redis-server
+    state: stopped
+  ignore_errors: yes
+  when: services.redis == false
